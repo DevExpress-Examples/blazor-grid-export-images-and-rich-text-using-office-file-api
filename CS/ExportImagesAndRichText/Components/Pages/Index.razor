@@ -1,0 +1,144 @@
+@page "/"
+
+@using ExportImagesAndRichText.Models
+@using DevExpress.XtraRichEdit
+@using ExportImagesAndRichText.Data
+@using DevExpress.Spreadsheet
+@using DevExpress.XtraRichEdit.API.Native
+@using DocumentFormat = DevExpress.Spreadsheet.DocumentFormat
+@using DevExpress.Office
+@using System.Drawing
+@inject EmployeesService dataService
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+<style>
+    .myGrid {
+        height:  700px;
+    }
+</style>
+
+<DxButton Text="Export to XSLX" Click="@(() => Export("Excel"))"></DxButton>
+<DxButton Text="Export to PDF" Click="@(() => Export("PDF"))"></DxButton>
+
+<br/>
+<br/>
+
+<DxGrid @ref="Grid" Data="@Employees" TextWrapEnabled="true" PageSize="pageSize"
+        CssClass="myGrid">
+    <Columns>
+        <DxGridDataColumn FieldName="EmployeeID" Caption="ID" VisibleIndex="0" Visible="false"/>
+        <DxGridDataColumn FieldName="FirstName" Caption="First Name" VisibleIndex="1"/>
+        <DxGridDataColumn FieldName="LastName" Caption="Last Name" VisibleIndex="2"/>
+        <DxGridDataColumn FieldName="NotesHtml" Caption="Notes" VisibleIndex="3">
+            <CellDisplayTemplate>
+                <div style="display: flex; justify-content: center; align-items: center; height: 300px; overflow:  auto">
+                    <div>
+                        @((MarkupString)(string)context.Value)
+                    </div>
+                </div>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="PhotoUrl" Caption="Photo" VisibleIndex="4">
+            <CellDisplayTemplate>
+                <div style="display: flex; justify-content: center; align-items: center;">
+                    @{
+                        var base64 = Convert.ToBase64String(File.ReadAllBytes((string)context.Value));
+                        var imageSrc = "data:image/jpeg;base64," + base64;
+                    }
+                    <img src="@imageSrc"/>
+                </div>
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+    </Columns>
+</DxGrid>
+
+@code {
+    int pageSize = 10;
+    DxGrid Grid;
+    List<Employee> Employees { get; set; }
+    RichEditDocumentServer server = new();
+
+    protected override void OnInitialized() {
+        Employees = dataService.GetEmployees();
+    }
+
+    async Task Export(string format) {
+        Workbook workbook = new Workbook();
+        workbook.Unit = DocumentUnit.Centimeter;
+        var worksheet = workbook.Worksheets.ActiveWorksheet;
+        var columns = Grid.GetDataColumns().OrderBy(c => c.VisibleIndex).ToList();
+
+        workbook.BeginUpdate();
+        for (int i = 0; i < columns.Count(); i++) {
+            worksheet.Columns[i].Width = 10;
+            
+            var headerCell = worksheet[0, i];
+            headerCell.Value = columns[i].Caption;
+            
+            var formatting = headerCell.BeginUpdateFormatting();
+            formatting.Borders.SetAllBorders(Color.Black, DevExpress.Spreadsheet.BorderLineStyle.Thin);
+            formatting.Alignment.Horizontal = SpreadsheetHorizontalAlignment.Center;
+            formatting.Alignment.Vertical = SpreadsheetVerticalAlignment.Center;
+            formatting.Font.Bold = true;
+            formatting.Fill.BackgroundColor = Color.Gray;
+            headerCell.EndUpdateFormatting(formatting);
+        }
+
+        var rowCount = Grid.GetVisibleRowCount();
+        for (int rowIdx = 0; rowIdx < rowCount; rowIdx++) {
+            worksheet.Rows[rowIdx + 1].Height = 6.25;
+            int colIdx = 0;
+
+            foreach (var column in columns) {
+                var value = Grid.GetRowValue(rowIdx, column.FieldName);
+                var cell = worksheet[rowIdx + 1, colIdx];
+                if (column.FieldName == "NotesHtml") {
+                    ProcessHtmlValue(cell, (string)value);
+                } else if (column.FieldName.Contains("PhotoUrl")) {
+                    var imageBytes = await File.ReadAllBytesAsync((string)value);
+                    cell.SetValue(imageBytes);
+                } else {
+                    cell.SetValue(value);
+                }
+
+                var formatting = cell.BeginUpdateFormatting();
+                formatting.Borders.SetAllBorders(Color.Black, DevExpress.Spreadsheet.BorderLineStyle.Thin);
+                formatting.Alignment.Horizontal = SpreadsheetHorizontalAlignment.Center;
+                formatting.Alignment.Vertical = SpreadsheetVerticalAlignment.Center;
+                cell.EndUpdateFormatting(formatting);
+
+                colIdx++;
+            }
+        }
+
+        worksheet.Tables.Add(worksheet.GetDataRange(), true);
+        workbook.EndUpdate();
+
+        var stream = new MemoryStream();
+
+        if (format == "Excel") {
+            await workbook.SaveDocumentAsync(stream, DocumentFormat.Xlsx);
+            await JS.InvokeVoidAsync("saveAsFile", "Employees.xlsx", Convert.ToBase64String(stream.ToArray()));
+        } else if (format == "PDF") {
+            worksheet.PrintOptions.FitToPage = true;
+            worksheet.PrintOptions.FitToHeight = (int)Math.Ceiling(Grid.GetVisibleRowCount() / (double)pageSize);
+            await workbook.ExportToPdfAsync(stream);
+            await JS.InvokeVoidAsync("saveAsFile", "Employees.pdf", Convert.ToBase64String(stream.ToArray()));
+        }
+    }
+
+    void ProcessHtmlValue(Cell cell, string html) {
+        server.HtmlText = html;
+        CustomDocumentVisitor visitor = new CustomDocumentVisitor(server.Document.Range.End.ToInt());
+        DocumentIterator iterator = new DocumentIterator(server.Document, true);
+        while (iterator.MoveNext()) {
+            iterator.Current.Accept(visitor);
+        }
+
+        RichTextString richText = visitor.RichText;
+        cell.SetRichText(richText);
+        if (server.Document.Paragraphs.Count > 1)
+            cell.Alignment.WrapText = true;
+    }
+}
