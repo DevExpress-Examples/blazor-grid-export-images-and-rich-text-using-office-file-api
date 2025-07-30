@@ -1,8 +1,8 @@
-**Blazor Grid - How to export images and rich text using Spreadsheet Document API**
+# Blazor Grid - How to export images and rich text using Spreadsheet Document API
 
 This example demonstrates how you can use Spreadsheet Document API to create a custom export mechanism to export images and rich text.
 
-**Overview**
+## Overview
 
 Create a [Workbook](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.Workbook) instance. Iterate through Grid's data columns (you can obtain them through the [GetDataColumns](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxGrid.GetRowValue(System.Int32-System.String)) method) and create corresponding header cells in the Workbook's active worksheet. You can use the [BeginUpdateFormatting](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.CellRange.BeginUpdateFormatting?p=netframework) and [EndUpdateFormatting](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.CellRange.EndUpdateFormatting(DevExpress.Spreadsheet.Formatting)) methods to format the header as required.
 
@@ -16,9 +16,9 @@ To download the document in Excel format, use the [SaveDocument{Async}](https://
 
 To downlaod the document in PDF format, use the [ExportToPdf{Async}](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.Workbook.ExportToPdf.overloads) method. You can specify [PrintOptions](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.Worksheet.PrintOptions?p=netframework) to customize the appearance of the document (e.g., the number of pages in the resulting document).
 
-**Files to Review**
-Index.razor
-CustomDocumentVisitor.cs
+## Files to Review
+- Index.razor
+- CustomDocumentVisitor.cs
 
-**Documentation**
-[Spreadsheet Document API Examples](https://docs.devexpress.com/OfficeFileAPI/12074/spreadsheet-document-api/examples)
+## Documentation
+- [Spreadsheet Document API Examples](https://docs.devexpress.com/OfficeFileAPI/12074/spreadsheet-document-api/examples)
