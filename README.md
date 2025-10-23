@@ -16,7 +16,7 @@ This example uses Spreadsheet Document APIs to implement an export mechanism for
 
 ### Set Up Grid
 
-Create a DevExpress Blazor Grid and populate it with data. Use [CellDisplayTemplate](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxGridDataColumn.CellDisplayTemplate) to display an [image](./CS/ExportImagesAndRichText/Components/Pages/Index.razor#L43) or [rich text](./CS/ExportImagesAndRichText/Components/Pages/Index.razor#L35) within a cell.
+Create a DevExpress Blazor Grid and populate it with data. Use [CellDisplayTemplate](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxGridDataColumn.CellDisplayTemplate) to display an [image](./CS/ExportImagesAndRichText/Components/Pages/Index.razor#L43) or [rich text](./CS/ExportImagesAndRichText/Components/Pages/Index.razor#L35) in a cell.
 
 ### Implement Export Engine
 
