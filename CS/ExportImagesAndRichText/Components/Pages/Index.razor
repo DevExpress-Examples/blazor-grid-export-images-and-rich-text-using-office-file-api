@@ -70,7 +70,7 @@
         Workbook workbook = new Workbook();
         workbook.Unit = DocumentUnit.Centimeter;
         var worksheet = workbook.Worksheets.ActiveWorksheet;
-        var columns = Grid.GetDataColumns().OrderBy(c => c.VisibleIndex).ToList();
+        var columns = Grid.GetVisibleColumns().Where(c => c is DxGridDataColumn).Cast<DxGridDataColumn>().ToList();
 
         workbook.BeginUpdate();
         for (int i = 0; i < columns.Count(); i++) {
