@@ -1,33 +1,47 @@
 <!-- default badges list -->
-![](https://img.shields.io/endpoint?url=https://codecentral.devexpress.com/api/v1/VersionRange/1029081391/25.1.0%2B)
 [![](https://img.shields.io/badge/Open_in_DevExpress_Support_Center-FF7200?style=flat-square&logo=DevExpress&logoColor=white)](https://supportcenter.devexpress.com/ticket/details/T1302036)
 [![](https://img.shields.io/badge/📖_How_to_use_DevExpress_Examples-e9f6fc?style=flat-square)](https://docs.devexpress.com/GeneralInformation/403183)
 [![](https://img.shields.io/badge/💬_Leave_Feedback-feecdd?style=flat-square)](#does-this-example-address-your-development-requirementsobjectives)
 <!-- default badges end -->
-# Blazor Grid - How to export images and rich text using Spreadsheet Document API
+# Blazor Grid - Export Images/Rich Text Using Spreadsheet Document APIs
 
-This example demonstrates how you can use Spreadsheet Document API to create a custom export mechanism to export images and rich text.
+This example uses Spreadsheet Document APIs to implement an export mechanism for cells that contain images and rich text.
 
-## Overview
+DevExpress Blazor Grid ships with [built-in methods](https://docs.devexpress.com/Blazor/404338/components/grid/export) that can export Grid data to a spreadsheet. You need a manual implementation described below only if you use cell templates. Two common data types that require templates are rich text and images. To export such cells, you need to transfer data to spreadsheet cells manually. This example shows how you can do it using [DevExpress Office File API](https://docs.devexpress.com/Blazor/404576/components/office-file-api) - a standalone library that helps you read/write documents, spreadsheets, presentations, and PDF files.
 
-Create a [Workbook](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.Workbook) instance. Iterate through Grid's data columns (you can obtain them through the [GetDataColumns](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxGrid.GetRowValue(System.Int32-System.String)) method) and create corresponding header cells in the Workbook's active worksheet. You can use the [BeginUpdateFormatting](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.CellRange.BeginUpdateFormatting?p=netframework) and [EndUpdateFormatting](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.CellRange.EndUpdateFormatting(DevExpress.Spreadsheet.Formatting)) methods to format the header as required.
+> [!IMPORTANT]
+> You need a license to the [DevExpress Office File API Subscription](https://www.devexpress.com/products/net/office-file-api/) or [DevExpress Universal Subscription](https://www.devexpress.com/subscriptions/universal.xml) to use these capabilities in production code.
 
-Then, use Grid's [GetVisibleRowCount](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxGrid.GetVisibleRowCount) and [GetRowValue](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxGrid.GetRowValue(System.Int32-System.String)) methods to iterate through its visible rows and obtain field values from each row. Use those values to populate the worksheet. To set a Cell's value, you can use the [SetValue](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.CellRange.SetValue(System.Object)?p=netframework) method. To set cell value to an image, you can pass the image in the form of a stream or a byte array as a parameter to the **SetValue** method. 
+![DevExpress Blazor - Export Images and Rich Text](blazor-export-images-rich-text.png)
 
-To place rich text into a cell, you can use a similar approach to the one demonstrated in our [WinForms Spreadsheet Control - How to Edit Rich Text in SpreadsheetControl](https://github.com/DevExpress-Examples/winforms-spreadsheet-how-to-edit-rich-text/tree/19.1.4%2B) example. 
+## Implementation Details
 
-After populating the worksheet, create a [table](https://docs.devexpress.com/OfficeFileAPI/403308/spreadsheet-document-api/spreadsheet-tables#create-a-table) to enable filtering and sorting of the dataset in the document.
+### Set Up a Grid Component
 
-To download the document in Excel format, use the [SaveDocument{Async}](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.Workbook.SaveDocument.overloads?p=netframework) method to save it to a stream or byte array and use standard Blazor techniques to send the byte array on the client. 
+Create a DevExpress Blazor Grid and populate it with data. Use [CellDisplayTemplate](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxGridDataColumn.CellDisplayTemplate) to display [images](./CS/ExportImagesAndRichText/Components/Pages/Index.razor#L43) or [rich text](./CS/ExportImagesAndRichText/Components/Pages/Index.razor#L35) in cells.
 
-To downlaod the document in PDF format, use the [ExportToPdf{Async}](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.Workbook.ExportToPdf.overloads) method. You can specify [PrintOptions](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.Worksheet.PrintOptions?p=netframework) to customize the appearance of the document (e.g., the number of pages in the resulting document).
+### Implement an Export Engine
+
+To implement image/rich text export, you must:
+
+1. Create a [Workbook](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.Workbook) instance and access the active worksheet.
+1. Iterate through Grid data columns (using the [GetVisibleColumns](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxGrid.GetVisibleColumns) method) and create corresponding header cells in the worksheet. You can call [BeginUpdateFormatting](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.CellRange.BeginUpdateFormatting?p=netframework) and [EndUpdateFormatting](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.CellRange.EndUpdateFormatting(DevExpress.Spreadsheet.Formatting)) methods to apply header formatting.
+1. Call [DxGrid.GetVisibleRowCount](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxGrid.GetVisibleRowCount) and [DxGrid.GetRowValue](https://docs.devexpress.com/Blazor/DevExpress.Blazor.DxGrid.GetRowValue(System.Int32-System.String)) methods to iterate through visible rows and obtain cell values from each row. 
+1. Populate the worksheet with cell values using the [SetValue](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.CellRange.SetValue(System.Object)?p=netframework) method. 
+1. _Optional._ Create a [table](https://docs.devexpress.com/OfficeFileAPI/403308/spreadsheet-document-api/spreadsheet-tables#create-a-table) to enable data filter and sorting capabilities in the exported document.
+1. Call the [SaveDocument{Async}](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.Workbook.SaveDocument.overloads?p=netframework)/[ExportToPdf{Async}](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.Workbook.ExportToPdf.overloads) method to export the resulting document. 
+1. _Optional._ Specify [PrintOptions](https://docs.devexpress.com/OfficeFileAPI/DevExpress.Spreadsheet.Worksheet.PrintOptions?p=netframework) to customize document appearance.
 
 ## Files to Review
-- [Index.razor](https://github.com/DevExpress-Examples/blazor-grid-how-to-export-images-and-rich-text-using-spreadsheet-document-api/blob/25.1.0%2B/CS/ExportImagesAndRichText/Components/Pages/Index.razor)
-- [CustomDocumentVisitor.cs](https://github.com/DevExpress-Examples/blazor-grid-how-to-export-images-and-rich-text-using-spreadsheet-document-api/blob/25.1.0%2B/CS/ExportImagesAndRichText/Models/CustomDocumentVisitor.cs)
+
+* [Index.razor](https://github.com/DevExpress-Examples/blazor-grid-how-to-export-images-and-rich-text-using-spreadsheet-document-api/blob/25.1.0%2B/CS/ExportImagesAndRichText/Components/Pages/Index.razor)
+* [CustomDocumentVisitor.cs](https://github.com/DevExpress-Examples/blazor-grid-how-to-export-images-and-rich-text-using-spreadsheet-document-api/blob/25.1.0%2B/CS/ExportImagesAndRichText/Models/CustomDocumentVisitor.cs)
 
 ## Documentation
+
 - [Spreadsheet Document API Examples](https://docs.devexpress.com/OfficeFileAPI/12074/spreadsheet-document-api/examples)
+- [Blazor Grid](https://docs.devexpress.com/Blazor/403143/components/grid)
+
 <!-- feedback -->
 ## Does this example address your development requirements/objectives?
 

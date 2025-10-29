@@ -14,7 +14,7 @@
 
 <style>
     .myGrid {
-        height:  700px;
+        height:  660px;
     }
 </style>
 
@@ -24,12 +24,15 @@
 <br/>
 <br/>
 
-<DxGrid @ref="Grid" Data="@Employees" TextWrapEnabled="true" PageSize="pageSize"
+<DxGrid @ref="Grid" 
+        Data="@Employees" 
+        TextWrapEnabled="true" 
+        PageSize="pageSize"
         CssClass="myGrid">
     <Columns>
         <DxGridDataColumn FieldName="EmployeeID" Caption="ID" VisibleIndex="0" Visible="false"/>
-        <DxGridDataColumn FieldName="FirstName" Caption="First Name" VisibleIndex="1"/>
-        <DxGridDataColumn FieldName="LastName" Caption="Last Name" VisibleIndex="2"/>
+        <DxGridDataColumn FieldName="FirstName" Caption="First Name" Width="85" VisibleIndex="1"/>
+        <DxGridDataColumn FieldName="LastName" Caption="Last Name" Width="85" VisibleIndex="2"/>
         <DxGridDataColumn FieldName="NotesHtml" Caption="Notes" VisibleIndex="3">
             <CellDisplayTemplate>
                 <div style="display: flex; justify-content: center; align-items: center; height: 300px; overflow:  auto">
@@ -67,7 +70,7 @@
         Workbook workbook = new Workbook();
         workbook.Unit = DocumentUnit.Centimeter;
         var worksheet = workbook.Worksheets.ActiveWorksheet;
-        var columns = Grid.GetDataColumns().OrderBy(c => c.VisibleIndex).ToList();
+        var columns = Grid.GetVisibleColumns().Where(c => c is DxGridDataColumn).Cast<DxGridDataColumn>().ToList();
 
         workbook.BeginUpdate();
         for (int i = 0; i < columns.Count(); i++) {
