@@ -6,8 +6,6 @@
 <!-- default badges end -->
 # Blazor Grid - Export Images/Rich Text Using Spreadsheet Document APIs
 
-This example uses Spreadsheet Document APIs to implement an export mechanism for cells that contain images and rich text.
-
 DevExpress Blazor Grid ships with [built-in methods](https://docs.devexpress.com/Blazor/404338/components/grid/export) that can export Grid data to a spreadsheet. You need a manual implementation described below only if you use cell templates. Two common data types that require templates are rich text and images. To export such cells, you need to transfer data to spreadsheet cells manually. This example shows how you can do it using [DevExpress Office File API](https://docs.devexpress.com/Blazor/404576/components/office-file-api) - a standalone library that helps you read/write documents, spreadsheets, presentations, and PDF files.
 
 > [!IMPORTANT]
@@ -50,3 +48,4 @@ To implement image/rich text export, you must:
 
 (you will be redirected to DevExpress.com to submit your response)
 <!-- feedback end -->
+
