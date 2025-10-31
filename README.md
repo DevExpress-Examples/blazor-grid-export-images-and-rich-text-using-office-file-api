@@ -32,8 +32,8 @@ To export image/rich text, you must:
 
 ## Files to Review
 
-* [Index.razor](https://github.com/DevExpress-Examples/blazor-grid-how-to-export-images-and-rich-text-using-spreadsheet-document-api/blob/25.1.0%2B/CS/ExportImagesAndRichText/Components/Pages/Index.razor)
-* [CustomDocumentVisitor.cs](https://github.com/DevExpress-Examples/blazor-grid-how-to-export-images-and-rich-text-using-spreadsheet-document-api/blob/25.1.0%2B/CS/ExportImagesAndRichText/Models/CustomDocumentVisitor.cs)
+* [Index.razor](./CS/ExportImagesAndRichText/Components/Pages/Index.razor)
+* [CustomDocumentVisitor.cs](./CS/ExportImagesAndRichText/Models/CustomDocumentVisitor.cs)
 
 ## Documentation
 
@@ -47,6 +47,7 @@ To export image/rich text, you must:
 
 (you will be redirected to DevExpress.com to submit your response)
 <!-- feedback end -->
+
 
 
 
