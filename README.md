@@ -8,8 +8,7 @@
 
 The DevExpress Blazor Grid ships with [built-in methods](https://docs.devexpress.com/Blazor/404338/components/grid/export) designed to export Grid data to a spreadsheet file. You should use the manual implementation described below when using cell templates (common data types requiring the use of cell templates are rich text and images). To export rich text/image content, you need to transfer data to spreadsheet cells manually.
 
-> [!IMPORTANT]
-> This example uses the [DevExpress Office File API](https://docs.devexpress.com/Blazor/404576/components/office-file-api) - a standalone library that allows you to read/write documents, spreadsheets, presentations, and PDF files. The DevExpress Office File API is included in the following subscriptions: [DevExpress Office File API Subscription](https://www.devexpress.com/products/net/office-file-api/) or [DevExpress Universal Subscription](https://www.devexpress.com/subscriptions/universal.xml).
+Note: This example uses the [DevExpress Office File API](https://docs.devexpress.com/Blazor/404576/components/office-file-api) - a standalone library that allows you to read/write documents, spreadsheets, presentations, and PDF files. The DevExpress Office File API is included in the following subscriptions: [DevExpress Office File API Subscription](https://www.devexpress.com/products/net/office-file-api/) or [DevExpress Universal Subscription](https://www.devexpress.com/subscriptions/universal.xml).
 
 ![DevExpress Blazor - Export Images and Rich Text](blazor-export-images-rich-text.png)
 
@@ -48,5 +47,6 @@ To export image/rich text, you must:
 
 (you will be redirected to DevExpress.com to submit your response)
 <!-- feedback end -->
+
 
 
